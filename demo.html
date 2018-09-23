@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+<body>
+        <script type="text/javascript">
+            var file;
+            var info;
+                function processImage() {
+                    // **********************************************
+                    // *** Update or verify the following values. ***
+                    // **********************************************
+            
+                    // Replace the subscriptionKey string value with your valid subscription key.
+                    var subscriptionKey = "ab824e2933844fd78cf48bda2fdbf7b1";
+            
+                    // Replace or verify the region.
+                    //
+                    // You must use the same region in your REST API call as you used to obtain your subscription keys.
+                    // For example, if you obtained your subscription keys from the westus region, replace
+                    // "westcentralus" in the URI below with "westus".
+                    //
+                    // NOTE: Free trial subscription keys are generated in the westcentralus region, so if you are using
+                    // a free trial subscription key, you should not need to change this region.
+                    var uriBase = "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/ocr";
+            
+                    // Request parameters.
+                    var params = {
+                        "language": "unk",
+                        "detectOrientation ": "true",
+                    };
+            
+                    // Display the image.
+                    var sourceImageUrl = document.getElementById("inputImage").value;
+                    document.querySelector("#sourceImage").src = sourceImageUrl;
+            
+                    // Perform the REST API call.
+                    $.ajax({
+                        url: uriBase + "?" + $.param(params),
+            
+                        // Request headers.
+                        beforeSend: function(jqXHR){
+                            jqXHR.setRequestHeader("Content-Type","application/json");
+                            jqXHR.setRequestHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
+                        },
+            
+                        type: "POST",
+            
+                        // Request body.
+                        data: '{"url": ' + '"' + sourceImageUrl + '"}',
+                    })
+            
+                    .done(function(data) {
+                        // Show formatted JSON on webpage.
+                        text =  JSON.stringify(data, null, 2);
+                       
+                        info = JSON.parse(text);
+                        /*var txt = CreateObject("Scripting.FileSystemObject");
+                           var s = txt.CreateTextFile("test.txt", true);
+            
+                           s.WriteLine(text);
+                           s.Close();*/
+                            
+                        $("#responseTextArea").val(text);
+                    })
+            
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                        // Display error message.
+                        var errorString = (errorThrown === "") ? "Error. " : errorThrown + " (" + jqXHR.status + "): ";
+                        errorString += (jqXHR.responseText === "") ? "" : (jQuery.parseJSON(jqXHR.responseText).message) ? 
+                            jQuery.parseJSON(jqXHR.responseText).message : jQuery.parseJSON(jqXHR.responseText).error.message;
+                        alert(errorString);
+                    });
+                };
+            </script>
+    <h1>EZForm:</h1>
+        Enter the URL to an image of printed text, then click the <strong>Read image</strong> button.
+        <br><br>
+        Image to read: <input type="text" name="inputImage" id="inputImage" value="https://raw.githubusercontent.com/HieuNgo/Hackathon2/master/Capture.PNG" />
+        <button onclick="processImage()">Read image</button>
+        <br><br>
+        <div id="wrapper" style="width:1020px; display:table;">
+            <div id="jsonOutput" style="width:600px; display:table-cell;">
+                Response:
+                <br><br>
+                <textarea id="responseTextArea" class="UIInput" style="width:580px; height:400px;"></textarea>
+            </div>
+            <div id="imageDiv" style="width:420px; display:table-cell;">
+                Source image:
+                <br><br>
+                <img id="sourceImage" width="400" />
+            </div>
+        </div>
+    <button id="speakBtn">Speak please</button>
+    <label><input type="checkbox" id="multipleXHRChk" checked="checked" />Mutiple XHR</label>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <!--<script type= "text/javascript" src= "../readTextFile.js"></script>-->
+    <!--<script type= "text/javascript" src= "../test.js"></script>-->
+    <script src="BingSpeech.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
